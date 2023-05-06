@@ -37,4 +37,4 @@ The following request types are supported:
 * PowerRequestAwayModeRequired
 * PowerRequestExecutionRequired
 
-By default, the `PowerRequestSystemRequired` type is used.  For details about the request types, refer to the pMicrosoft documentation](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powersetrequest).
+By default, the `PowerRequestSystemRequired` type is used.  For details about the request types, refer to the [Microsoft documentation](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powersetrequest).
