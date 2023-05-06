@@ -1,0 +1,26 @@
+{
+  "name": "kicken/php-power-request",
+  "description": "Enable access to windows power request APIs.",
+  "keywords": [
+    "power",
+    "sleep",
+    "wake",
+    "windows"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Keith Maika"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Kicken\\PowerRequest\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.1",
+    "ext-ffi": "*"
+  }
+}
