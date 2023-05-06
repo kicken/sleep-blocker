@@ -35,6 +35,10 @@ class Request {
     }
 
     public function set() : void{
+        if ($this->isSet){
+            return;
+        }
+
         /** @noinspection PhpUndefinedMethodInspection */
         /** @noinspection PhpUndefinedFieldInspection */
         $success = $this->ffi->PowerSetRequest($this->request, match ($this->type) {
