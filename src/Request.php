@@ -34,6 +34,10 @@ class Request {
         $this->ffi->CloseHandle($this->request);
     }
 
+    public function isSet() : bool{
+        return $this->isSet;
+    }
+
     public function set() : void{
         if ($this->isSet){
             return;
