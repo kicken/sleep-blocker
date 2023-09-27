@@ -11,11 +11,15 @@ class Request {
     private CData $request;
     private RequestType $type;
     private bool $isSet = false;
+    private bool $isWindows = PHP_OS_FAMILY === 'Windows';
 
     private const POWER_REQUEST_CONTEXT_VERSION = 0;
     private const POWER_REQUEST_CONTEXT_SIMPLE_STRING = 1;
 
     public function __construct(string $reason, bool $autoSet = true, RequestType $type = RequestType::PowerRequestSystemRequired){
+        if (!$this->isWindows){
+            return;
+        }
         if (!extension_loaded('ffi')){
             throw new RuntimeException('FFI extension is required.');
         }
@@ -29,6 +33,9 @@ class Request {
     }
 
     public function __destruct(){
+        if (!$this->isWindows){
+            return;
+        }
         $this->clearRequest(false);
         /** @noinspection PhpUndefinedMethodInspection */
         $this->ffi->CloseHandle($this->request);
@@ -39,7 +46,7 @@ class Request {
     }
 
     public function set() : void{
-        if ($this->isSet){
+        if (!$this->isWindows || $this->isSet){
             return;
         }
 
@@ -63,7 +70,7 @@ class Request {
     }
 
     private function clearRequest(bool $throw = true) : void{
-        if (!$this->isSet){
+        if (!$this->isWindows || !$this->isSet){
             return;
         }
 
