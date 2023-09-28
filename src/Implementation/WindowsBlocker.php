@@ -1,10 +1,9 @@
 <?php
 
-namespace Kicken\PowerRequest;
+namespace Kicken\SleepBlocker\Implementation;
 
 use FFI;
 use FFI\CData;
-use Kicken\SleepBlocker\Implementation\Blocker;
 use RuntimeException;
 
 class WindowsBlocker implements Blocker {
@@ -39,7 +38,7 @@ class WindowsBlocker implements Blocker {
             return;
         }
 
-        $this->request = $this->createRequest($reason);
+        $this->createRequest($reason);
         /** @noinspection PhpUndefinedMethodInspection */
         /** @noinspection PhpUndefinedFieldInspection */
         $success = $this->ffi->PowerSetRequest($this->request, $this->ffi->PowerRequestSystemRequired);
