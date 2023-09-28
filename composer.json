@@ -1,5 +1,5 @@
 {
-  "name": "kicken/php-power-request",
+  "name": "kicken/sleep-blocker",
   "description": "Enable access to windows power request APIs.",
   "keywords": [
     "power",
