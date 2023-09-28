@@ -1,6 +1,6 @@
 {
   "name": "kicken/sleep-blocker",
-  "description": "Enable access to windows power request APIs.",
+  "description": "Allows a PHP script to prevent the system from going to sleep",
   "keywords": [
     "power",
     "sleep",
@@ -16,7 +16,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Kicken\\PowerRequest\\": "src/"
+      "Kicken\\SleepBlocker\\": "src/"
     }
   },
   "require": {

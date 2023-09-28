@@ -4,83 +4,65 @@ namespace Kicken\PowerRequest;
 
 use FFI;
 use FFI\CData;
+use Kicken\SleepBlocker\Implementation\Blocker;
 use RuntimeException;
 
-class Request {
+class WindowsBlocker implements Blocker {
     private FFI $ffi;
-    private CData $request;
-    private RequestType $type;
-    private bool $isSet = false;
+    private ?CData $request = null;
     private bool $isWindows = PHP_OS_FAMILY === 'Windows';
 
     private const POWER_REQUEST_CONTEXT_VERSION = 0;
     private const POWER_REQUEST_CONTEXT_SIMPLE_STRING = 1;
 
-    public function __construct(string $reason, bool $autoSet = true, RequestType $type = RequestType::PowerRequestSystemRequired){
-        if (!$this->isWindows){
-            return;
-        }
+    public function __construct(){
         if (!extension_loaded('ffi')){
             throw new RuntimeException('FFI extension is required.');
         }
 
-        $this->createFFIObject();
-        $this->createRequest($reason);
-        $this->type = $type;
-        if ($autoSet){
-            $this->set();
-        }
+        $this->createFFIObject();;
     }
 
     public function __destruct(){
-        if (!$this->isWindows){
-            return;
+        try {
+            $this->allowSleep();
+        } catch (\RuntimeException){
         }
-        $this->clearRequest(false);
-        /** @noinspection PhpUndefinedMethodInspection */
-        $this->ffi->CloseHandle($this->request);
     }
 
-    public function isSet() : bool{
-        return $this->isSet;
+    public function isPreventingSleep() : bool{
+        return $this->request !== null;
     }
 
-    public function set() : void{
-        if (!$this->isWindows || $this->isSet){
+    public function preventSleep(string $reason) : void{
+        if ($this->request){
             return;
         }
 
+        $this->request = $this->createRequest($reason);
         /** @noinspection PhpUndefinedMethodInspection */
         /** @noinspection PhpUndefinedFieldInspection */
-        $success = $this->ffi->PowerSetRequest($this->request, match ($this->type) {
-            RequestType::PowerRequestDisplayRequired => $this->ffi->PowerRequestDisplayRequired,
-            RequestType::PowerRequestAwayModeRequired => $this->ffi->PowerRequestAwayModeRequired,
-            RequestType::PowerRequestExecutionRequired => $this->ffi->PowerRequestExecutionRequired,
-            default => $this->ffi->PowerRequestSystemRequired
-        });
+        $success = $this->ffi->PowerSetRequest($this->request, $this->ffi->PowerRequestSystemRequired);
         if (!$success){
             throw new RuntimeException('Unable to set power request.');
         }
-
-        $this->isSet = true;
     }
 
-    public function clear() : void{
-        $this->clearRequest();
-    }
-
-    private function clearRequest(bool $throw = true) : void{
-        if (!$this->isWindows || !$this->isSet){
+    public function allowSleep() : void{
+        if (!$this->request){
             return;
         }
 
         /** @noinspection PhpUndefinedMethodInspection */
         /** @noinspection PhpUndefinedFieldInspection */
         $success = $this->ffi->PowerClearRequest($this->request, $this->ffi->PowerRequestSystemRequired);
-        if (!$success && $throw){
+        if (!$success){
             throw new RuntimeException('Unable to clear request.');
         }
-        $this->isSet = false;
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        $this->ffi->CloseHandle($this->request);
+        $this->request = null;
     }
 
     private function createFFIObject() : void{

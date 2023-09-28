@@ -1,23 +1,20 @@
-# PHP Power Requests
-Create a power request to prevent a computer from going to sleep.  
+# Sleep Blocker
 
-## Requirements
- * Windows
- * [FFI Extension](https://www.php.net/manual/en/book.ffi.php)
+Allow PHP scripts to prevent a system from going to sleep.
 
 ## Example
-Construct an instance of Kicken\PowerRequest\Request() with a description of the reason for your request and the type of request you wish to create.  The request will be created as part of the object construction and released when the object goes out of scope.
 
-    $request = new Kicken\PowerRequest\Request("Script is working");
+Obtain a blocker by calling SleepBlocker::create. This will return a blocker implementation appropriate for the current system.
 
-You may manually set and release request by using the `set` and `clear` methods.
+    $blocker = Kicken\SleepBlocker\SleepBlocker::create();
 
-    $request = new Kicken\PowerRequest\Request('Connected to client.', false);
+Use the blocker methods preventSleep and allowSleep to disable or enable the system's ability to enter sleep mode.
+
     $server = stream_socket_server('tcp://0.0.0.0:9');
     while (true){
         $client = stream_socket_accept($server, null);
         if ($client){
-            $request->set();
+            $blocker->preventSleep();
             do {
                 $data = fread($client, 1024);
                 if (!$data){
@@ -25,16 +22,10 @@ You may manually set and release request by using the `set` and `clear` methods.
                     $client = null;
                 }
             } while ($client);
-            $request->clear();
+            $blocker->sllowSleep();
         }
     }
 
-## Request types
-The following request types are supported:
+## Known issues
 
-* PowerRequestDisplayRequired
-* PowerRequestSystemRequired
-* PowerRequestAwayModeRequired
-* PowerRequestExecutionRequired
-
-By default, the `PowerRequestSystemRequired` type is used.  For details about the request types, refer to the [Microsoft documentation](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powersetrequest).
+Currently only Microsoft Windows systems are supported.
