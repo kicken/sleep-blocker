@@ -9,17 +9,18 @@ use RuntimeException;
 class WindowsBlocker implements Blocker {
     private FFI $ffi;
     private ?CData $request = null;
-    private bool $isWindows = PHP_OS_FAMILY === 'Windows';
+    private string $defaultReason;
 
     private const POWER_REQUEST_CONTEXT_VERSION = 0;
     private const POWER_REQUEST_CONTEXT_SIMPLE_STRING = 1;
 
-    public function __construct(){
+    public function __construct(string $defaultReason){
         if (!extension_loaded('ffi')){
             throw new RuntimeException('FFI extension is required.');
         }
 
-        $this->createFFIObject();;
+        $this->defaultReason = $defaultReason;
+        $this->createFFIObject();
     }
 
     public function __destruct(){
@@ -33,12 +34,12 @@ class WindowsBlocker implements Blocker {
         return $this->request !== null;
     }
 
-    public function preventSleep(string $reason) : void{
+    public function preventSleep(string $reason = null) : void{
         if ($this->request){
             return;
         }
 
-        $this->createRequest($reason);
+        $this->createRequest($reason ?? $this->defaultReason);
         /** @noinspection PhpUndefinedMethodInspection */
         /** @noinspection PhpUndefinedFieldInspection */
         $success = $this->ffi->PowerSetRequest($this->request, $this->ffi->PowerRequestSystemRequired);
@@ -65,6 +66,7 @@ class WindowsBlocker implements Blocker {
     }
 
     private function createFFIObject() : void{
+        /** @noinspection SpellCheckingInspection */
         $this->ffi = FFI::cdef('
 typedef unsigned short wchar_t;
 typedef unsigned long ULONG;

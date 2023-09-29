@@ -3,7 +3,10 @@
 namespace Kicken\SleepBlocker\Implementation;
 
 class NullBlocker implements Blocker {
-    public function preventSleep(string $reason) : void{
+    public function __construct(string $defaultReason){
+    }
+
+    public function preventSleep(string $reason = null) : void{
     }
 
     public function allowSleep() : void{
